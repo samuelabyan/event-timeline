@@ -100,13 +100,10 @@
             yearDiv.classList.add('timeline-year');
             yearDiv.textContent = `${year}${adbc === 'BC' ? ' BC' : ' AD'}`;
             timelineItem.appendChild(yearDiv);
-
-            const detailsDiv = document.createElement('div');
-            detailsDiv.classList.add('timeline-shortdescription');
             
             const detailsDiv = document.createElement('div');
             detailsDiv.classList.add('timeline-details');
-
+            
             const titleDiv = document.createElement('div');
             titleDiv.classList.add('timeline-title');
             titleDiv.textContent = title;
