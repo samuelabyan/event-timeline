@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Timeline App</title>
+  <style>
+    /* Minimal styling for demonstration purposes */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 100%; /* Adjusted to fill the whole page horizontally */
+      margin: 20px auto;
+      overflow-x: auto; /* Added for horizontal scrolling if needed */
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    table, th, td {
+      border: 1px solid #000;
+      word-wrap: break-word;
+    }
+
+    th, td {
+      padding: 8px;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    button {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Timeline</h1>
+    <button id="addBtn">Add Timeline Item</button>
+    <button id="exportBtn">Export Data</button>
+    <input type="file" id="importFile" accept=".json">
+    <table id="timeline">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>A.D. / B.C.</th>
+          <th>Short Description</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Sources</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="timelineBody">
+        <!-- Placeholder for the initial row explaining fields -->
+        <tr style="display: none;">
+          <td>Year</td>
+          <td>A.D. / B.C.</td>
+          <td>Short Description</td>
+          <td>Title</td>
+          <td>Description</td>
+          <td>Sources</td>
+          <td>Actions</td>
+        </tr>
+        <!-- Timeline items will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let timelineData = [
+      {
+        year: "2023",
+        adbc: "AD",
+        shortDescription: "Sample Short Description",
+        title: "Sample Title",
+        description: "Sample Description",
+        sources: "Sample Sources"
+      }
+    ];
+
+    function displayTimeline() {
+      const timelineBody = document.getElementById('timelineBody');
+      timelineBody.innerHTML = '';
+
+      timelineData.forEach((item, index) => {
+        const newRow = timelineBody.insertRow();
+        newRow.innerHTML = `
+          <td contenteditable="true" oninput="updateItem(this, 'year', ${index})">${item.year}</td>
+          <td>
+            <select onchange="updateItem(this, 'adbc', ${index})">
+              <option value="AD" ${item.adbc === 'AD' ? 'selected' : ''}>AD</option>
+              <option value="BC" ${item.adbc === 'BC' ? 'selected' : ''}>BC</option>
+            </select>
+          </td>
+          <td contenteditable="true" oninput="updateItem(this, 'shortDescription', ${index})">${item.shortDescription}</td>
+          <td contenteditable="true" oninput="updateItem(this, 'title', ${index})">${item.title}</td>
+          <td contenteditable="true" oninput="updateItem(this, 'description', ${index})">${item.description}</td>
+          <td contenteditable="true" oninput="updateItem(this, 'sources', ${index})">${item.sources}</td>
+          <td>
+            <button onclick="deleteRow(this)">Delete</button>
+          </td>
+        `;
+      });
+    }
+
+    function updateItem(element, field, index) {
+      timelineData[index][field] = element.innerText;
+    }
+
+    function addItem() {
+      const newRow = document.getElementById('timelineBody').insertRow();
+      const newItem = {
+        year: '',
+        adbc: 'AD',
+        shortDescription: '',
+        title: '',
+        description: '',
+        sources: ''
+      };
+      timelineData.push(newItem);
+      displayTimeline();
+    }
+
+    function deleteItem(index) {
+      timelineData.splice(index, 1);
+    }
+
+    function deleteRow(button) {
+      const row = button.parentNode.parentNode;
+      const index = row.rowIndex - 1;
+      deleteItem(index);
+      row.remove();
+    }
+
+    function exportData() {
+      const dataToExport = JSON.stringify(timelineData);
+      const blob = new Blob([dataToExport], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const importedData = JSON.parse(e.target.result);
+        timelineData = importedData;
+        displayTimeline();
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('addBtn').addEventListener('click', addItem);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importFile').addEventListener('change', importData);
+
+    displayTimeline();
+  </script>
+</body>
+</html>
