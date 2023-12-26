@@ -1,2 +1,2 @@
 # Bible Timeline
-Bible timeline webapp with timeline manager.
+Bible timeline webapp with timeline manager. (In development)
