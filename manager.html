@@ -2,179 +2,214 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Timeline App</title>
+  <title>Timeline Manager</title>
   <style>
-    /* Minimal styling for demonstration purposes */
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      margin: 20px;
     }
-
-    .container {
-      width: 100%; /* Adjusted to fill the whole page horizontally */
-      margin: 20px auto;
-      overflow-x: auto; /* Added for horizontal scrolling if needed */
-    }
-
-    h1 {
-      text-align: center;
-    }
-
     table {
-      width: 100%;
       border-collapse: collapse;
-      table-layout: fixed;
+      width: 100%;
+      margin-bottom: 20px;
     }
-
-    table, th, td {
-      border: 1px solid #000;
-      word-wrap: break-word;
-    }
-
     th, td {
+      border: 1px solid #ddd;
       padding: 8px;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      text-align: left;
     }
-
     th {
       background-color: #f2f2f2;
+      cursor: pointer;
     }
-
-    button {
+    #search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    label, input {
       margin-bottom: 10px;
+      width: calc(50% - 10px);
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Timeline</h1>
-    <button id="addBtn">Add Timeline Item</button>
-    <button id="exportBtn">Export Data</button>
-    <input type="file" id="importFile" accept=".json">
-    <table id="timeline">
-      <thead>
-        <tr>
-          <th>Year</th>
-          <th>A.D. / B.C.</th>
-          <th>Short Description</th>
-          <th>Title</th>
-          <th>Description</th>
-          <th>Sources</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="timelineBody">
-        <!-- Placeholder for the initial row explaining fields -->
-        <tr style="display: none;">
-          <td>Year</td>
-          <td>A.D. / B.C.</td>
-          <td>Short Description</td>
-          <td>Title</td>
-          <td>Description</td>
-          <td>Sources</td>
-          <td>Actions</td>
-        </tr>
-        <!-- Timeline items will be dynamically added here -->
-      </tbody>
-    </table>
-  </div>
 
-  <script>
-    let timelineData = [
-      {
-        year: "2023",
-        adbc: "AD",
-        shortDescription: "Sample Short Description",
-        title: "Sample Title",
-        description: "Sample Description",
-        sources: "Sample Sources"
-      }
-    ];
+<input type="text" id="search" placeholder="Search">
 
-    function displayTimeline() {
-      const timelineBody = document.getElementById('timelineBody');
-      timelineBody.innerHTML = '';
+<table id="sortable-table">
+  <thead>
+    <tr>
+      <th onclick="sortTable(0)">Year</th>
+      <th onclick="sortTable(1)">BC/BCE</th>
+      <th onclick="sortTable(2)">Year Description</th>
+      <th onclick="sortTable(3)">Title</th>
+      <th onclick="sortTable(4)">Description</th>
+      <th onclick="sortTable(5)">Sources</th>
+    </tr>
+  </thead>
+  <tbody id="table-body">
+    <!-- Table content will be added dynamically here -->
+  </tbody>
+</table>
 
-      timelineData.forEach((item, index) => {
-        const newRow = timelineBody.insertRow();
-        newRow.innerHTML = `
-          <td contenteditable="true" oninput="updateItem(this, 'year', ${index})">${item.year}</td>
-          <td>
-            <select onchange="updateItem(this, 'adbc', ${index})">
-              <option value="AD" ${item.adbc === 'AD' ? 'selected' : ''}>AD</option>
-              <option value="BC" ${item.adbc === 'BC' ? 'selected' : ''}>BC</option>
-            </select>
-          </td>
-          <td contenteditable="true" oninput="updateItem(this, 'shortDescription', ${index})">${item.shortDescription}</td>
-          <td contenteditable="true" oninput="updateItem(this, 'title', ${index})">${item.title}</td>
-          <td contenteditable="true" oninput="updateItem(this, 'description', ${index})">${item.description}</td>
-          <td contenteditable="true" oninput="updateItem(this, 'sources', ${index})">${item.sources}</td>
-          <td>
-            <button onclick="deleteRow(this)">Delete</button>
-          </td>
-        `;
-      });
-    }
+<form id="add-form">
+  <label for="year">Year:</label>
+  <input type="text" id="year" required>
+  
+  <label for="bc">BC/BCE:</label>
+  <input type="text" id="bc">
+  
+  <label for="year-description">Year Description:</label>
+  <input type="text" id="year-description">
+  
+  <label for="title">Title:</label>
+  <input type="text" id="title" required>
+  
+  <label for="description">Description:</label>
+  <input type="text" id="description">
+  
+  <label for="sources">Sources:</label>
+  <input type="text" id="sources">
+  
+  <button type="button" onclick="addRow()">Add New Item</button>
+</form>
 
-    function updateItem(element, field, index) {
-      timelineData[index][field] = element.innerText;
-    }
+<button onclick="exportToJSON()">Export to JSON</button>
+<input type="file" id="file-input" onchange="importFromJSON()">
 
-    function addItem() {
-      const newRow = document.getElementById('timelineBody').insertRow();
+<script>
+  let tableData = [];
+  let sortDirection = {};
+
+  function renderTable(data) {
+    const tableBody = document.getElementById('table-body');
+    tableBody.innerHTML = '';
+
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.year}</td>
+        <td>${item.bc}</td>
+        <td>${item.yearDescription}</td>
+        <td>${item.title}</td>
+        <td>${item.description}</td>
+        <td>${item.sources}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  function addRow() {
+    const yearValue = document.getElementById('year').value.trim();
+    const titleValue = document.getElementById('title').value.trim();
+
+    if (yearValue && titleValue) {
       const newItem = {
-        year: '',
-        adbc: 'AD',
-        shortDescription: '',
-        title: '',
-        description: '',
-        sources: ''
+        year: yearValue,
+        bc: document.getElementById('bc').value.trim(),
+        yearDescription: document.getElementById('year-description').value.trim(),
+        title: titleValue,
+        description: document.getElementById('description').value.trim(),
+        sources: document.getElementById('sources').value.trim()
       };
-      timelineData.push(newItem);
-      displayTimeline();
+
+      tableData.push(newItem);
+      renderTable(tableData);
+      document.getElementById('add-form').reset();
+    } else {
+      alert('Please fill in Year and Title fields');
+    }
+  }
+
+  function sortTable(column) {
+    const key = Object.keys(tableData[0])[column];
+    if (!sortDirection[key]) {
+      sortDirection[key] = 'asc';
+    } else if (sortDirection[key] === 'asc') {
+      sortDirection[key] = 'desc';
+    } else {
+      sortDirection[key] = 'asc';
     }
 
-    function deleteItem(index) {
-      timelineData.splice(index, 1);
-    }
+    tableData.sort((a, b) => {
+      const valueA = isNaN(parseFloat(a[key])) ? a[key].toLowerCase() : parseFloat(a[key]);
+      const valueB = isNaN(parseFloat(b[key])) ? b[key].toLowerCase() : parseFloat(b[key]);
 
-    function deleteRow(button) {
-      const row = button.parentNode.parentNode;
-      const index = row.rowIndex - 1;
-      deleteItem(index);
-      row.remove();
-    }
+      if (sortDirection[key] === 'asc') {
+        if (valueA < valueB) return -1;
+        if (valueA > valueB) return 1;
+        return 0;
+      } else {
+        if (valueA > valueB) return -1;
+        if (valueA < valueB) return 1;
+        return 0;
+      }
+    });
 
-    function exportData() {
-      const dataToExport = JSON.stringify(timelineData);
-      const blob = new Blob([dataToExport], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'data.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    renderTable(tableData);
+  }
 
-    function importData(event) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const importedData = JSON.parse(e.target.result);
-        timelineData = importedData;
-        displayTimeline();
-      };
-      reader.readAsText(file);
-    }
+  function exportToJSON() {
+    const jsonData = JSON.stringify(tableData);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'table_data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
-    document.getElementById('addBtn').addEventListener('click', addItem);
-    document.getElementById('exportBtn').addEventListener('click', exportData);
-    document.getElementById('importFile').addEventListener('change', importData);
+  function importFromJSON() {
+    const file = document.getElementById('file-input').files[0];
+    const reader = new FileReader();
 
-    displayTimeline();
-  </script>
+    reader.onload = function(event) {
+      const importedData = JSON.parse(event.target.result);
+      tableData = importedData;
+      renderTable(tableData);
+    };
+
+    reader.readAsText(file);
+  }
+
+  document.getElementById('search').addEventListener('input', function() {
+    const searchText = this.value.toLowerCase();
+
+    const filteredData = tableData.filter(item => {
+      return (
+        item.year.toLowerCase().includes(searchText) ||
+        item.bc.toLowerCase().includes(searchText) ||
+        item.yearDescription.toLowerCase().includes(searchText) ||
+        item.title.toLowerCase().includes(searchText) ||
+        item.description.toLowerCase().includes(searchText) ||
+        item.sources.toLowerCase().includes(searchText)
+      );
+    });
+
+    renderTable(filteredData);
+  });
+</script>
 </body>
 </html>
