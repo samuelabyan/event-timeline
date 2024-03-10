@@ -1,5 +1,5 @@
 # Bible Timeline
-Bible timeline web view based on Google Spreadsheet. (In development)
+Bible timeline with Google Sheet as database.
 
 [Live preview](https://samuelabyan.github.io/bible-timeline/) of the timeline. See public [Google Sheet of the events](https://docs.google.com/spreadsheets/d/e/2PACX-1vSxPSGsbzCKZ94OqW-YqdDkgVHHQFHqqqIthVMwkhlYaVqUL1CMMg9JapgIqUmx8hP6F9HvLHItW59Y/pubhtml).
 
