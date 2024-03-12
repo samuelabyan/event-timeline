@@ -17,3 +17,4 @@ This simple script provides a user-friendly interface to view events stored in a
 
 ### Future changes
 - Update user interface to make it more friendly.
+- Add larger database.
