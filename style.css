@@ -7,18 +7,18 @@
   .timeline li {
     margin: 20px 0; /* Adds spacing between timeline events */
     padding-left: 20px; /* Adds left padding */
-    border-left: 2px solid #ccc; /* Adds a left border */
+    border-left: 1px solid #E5E5E5; /* Adds a left border */
     position: relative; /* Allows positioning of pseudo-element */
   }
   .timeline li:before {
     content: ''; /* Adds a pseudo-element before each timeline event */
     position: absolute; /* Positions the pseudo-element */
-    left: -7px; /* Adjusts position to align with the border */
+    left: -8px; /* Adjusts position to align with the border */
     top: 0; /* Aligns with the top of the list item */
     width: 12px; /* Sets width */
     height: 12px; /* Sets height */
-    background-color: #fff; /* Background color of the pseudo-element */
-    border: 2px solid #ccc; /* Border of the pseudo-element */
+    background-color: #E0EEFD; /* Background color of the pseudo-element */
+    border: 2px solid #E0EEFD; /* Border of the pseudo-element */
     border-radius: 50%; /* Rounds the corners to create a circle */
   }
   .timeline li span {
