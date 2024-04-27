@@ -1,7 +1,7 @@
 # Event Timeline
 Simple event timeline webview with Google Sheet as database.
 
-[Live preview](https://samuelabyan.github.io/bible-timeline/) of the timeline. See public [Google Sheet of the events](https://docs.google.com/spreadsheets/d/e/2PACX-1vSxPSGsbzCKZ94OqW-YqdDkgVHHQFHqqqIthVMwkhlYaVqUL1CMMg9JapgIqUmx8hP6F9HvLHItW59Y/pubhtml).
+[Live preview](https://samuelabyan.github.io/event-timeline/) of the timeline. See public [Google Sheet of the events](https://docs.google.com/spreadsheets/d/e/2PACX-1vSxPSGsbzCKZ94OqW-YqdDkgVHHQFHqqqIthVMwkhlYaVqUL1CMMg9JapgIqUmx8hP6F9HvLHItW59Y/pubhtml).
 
 ### Description
 This simple script provides a user-friendly interface to view events stored in a Google Sheet as a dynamic vertical timeline. This app is designed to efficiently display a large number of events in a chronological order, allowing users to explore and search through them easily.
